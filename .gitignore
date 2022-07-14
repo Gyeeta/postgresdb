@@ -1,0 +1,9 @@
+
+# Ignore install dirs
+
+bin
+cfg
+include
+lib
+share
+
