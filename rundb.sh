@@ -226,6 +226,16 @@ case "$1" in
 
 		;;
 
+	printpids)
+		shift
+
+		GLOB_PRINT_PID=1
+		
+		gy_pgrep
+
+		exit 0;
+		;;
+
 	restart)
 	
 		shift 
