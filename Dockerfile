@@ -20,6 +20,13 @@ RUN if [ `sha256sum /tini | awk '{print $1}'` != "$TINI_SHA256" ]; then echo -e 
 
 COPY . /postgresdb/
 
+# Create dirs as the postgres shared libs are expected at this location
+RUN mkdir -p /opt/lib_install/postgres && \
+	ln -s /postgresdb/bin /opt/lib_install/postgres/bin && \
+	ln -s /postgresdb/lib /opt/lib_install/postgres/lib && \
+	ln -s /postgresdb/include /opt/lib_install/postgres/include
+
+
 ENTRYPOINT ["/tini", "-s", "-g", "--", "/postgresdb/container_db.sh" ]
 
 CMD ["start"]
