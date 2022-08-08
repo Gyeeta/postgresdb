@@ -18,14 +18,24 @@ ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
 RUN chmod 0755 /tini
 RUN if [ `sha256sum /tini | awk '{print $1}'` != "$TINI_SHA256" ]; then echo -e "ERROR : SHA256 of tini is different from expected value. Binary has changed. Please contact on Github.\n\n"; return 1; else return 0; fi
 
-COPY . /postgresdb/
+RUN addgroup --gid 1001 gyeeta && adduser --system --no-create-home --uid 1001 --gid 1001 gyeeta
+
+RUN mkdir -p -m 0755 /postgresdb; chown -R gyeeta:gyeeta /postgresdb
+
+RUN mkdir -p -m 0755 /opt/lib_install/postgres; chown -R gyeeta:gyeeta /opt/lib_install
+
+VOLUME [ "/dbdata" ]
+
+COPY --chown=gyeeta:gyeeta . /postgresdb/
+
+RUN echo -n "/dbdata/gyeetadb" > /postgresdb/cfg/dbdir.cfg
 
 # Create dirs as the postgres shared libs are expected at this location
-RUN mkdir -p /opt/lib_install/postgres && \
-	ln -s /postgresdb/bin /opt/lib_install/postgres/bin && \
+RUN ln -s /postgresdb/bin /opt/lib_install/postgres/bin && \
 	ln -s /postgresdb/lib /opt/lib_install/postgres/lib && \
 	ln -s /postgresdb/include /opt/lib_install/postgres/include
 
+USER gyeeta:gyeeta
 
 ENTRYPOINT ["/tini", "-s", "-g", "--", "/postgresdb/container_db.sh" ]
 

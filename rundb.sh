@@ -133,6 +133,8 @@ if [ ! -f ./bin/pg_ctl ]; then
 	exit 1
 fi
 
+export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
+
 ARGV_ARRAY=("$@") 
 ARGC_CNT=${#ARGV_ARRAY[@]} 
  

@@ -89,12 +89,14 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
-echo -n $DBDIR > ./cfg/dbdir.cfg
+if [ "x""$READONLYFS" = "x" ]; then
+	echo -n $DBDIR > ./cfg/dbdir.cfg
 
-if [ $? -ne 0 ]; then
-	echo -e "\n\nERROR : Failed to create a file in ./cfg dir : Please check if write permissions exist for that dir\n\n"
-	exit 1
-fi	
+	if [ $? -ne 0 ]; then
+		echo -e "\n\nERROR : Failed to create a file in ./cfg dir : Please check if write permissions exist for that dir\n\n"
+		exit 1
+	fi	
+fi
 
 echo -e "\n\nInstalled Postgres DB with DB Dir $DBDIR successfully.\n\nTo connect to DB, username is : postgres\n\nTo start the DB please run : ./rundb.sh start\n\n"
 

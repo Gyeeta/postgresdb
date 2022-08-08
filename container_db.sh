@@ -12,6 +12,8 @@ cd /postgresdb
 
 trap 'echo "	Exiting now... Cleaning up..."; ./rundb.sh stop; exit 0' SIGINT SIGQUIT SIGTERM
 
+export READONLYFS=1
+
 DBDIR=/dbdata
 
 CMD=${1:-"start"}
