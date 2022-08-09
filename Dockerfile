@@ -34,6 +34,8 @@ RUN mkdir -p -m 0755 /postgresdb; chown -R gyeeta:gyeeta /postgresdb
 
 RUN mkdir -p -m 0755 /opt/lib_install/postgres; chown -R gyeeta:gyeeta /opt/lib_install
 
+RUN mkdir -p -m 0775 /dbdata; chown -R gyeeta:gyeeta /dbdata
+
 VOLUME [ "/dbdata" ]
 
 COPY --chown=gyeeta:gyeeta . /postgresdb/
