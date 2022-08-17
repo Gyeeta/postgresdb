@@ -249,8 +249,9 @@ case "$1" in
 
 	-v | --version)
 
-		./bin/postgres --version
-		
+		POSTGRES_VERSION=`./bin/postgres --version | awk '{printf "%s.0", $NF}'`
+		echo "postgres (PostgreSQL) $POSTGRES_VERSION"
+
 		;;
 
 	*)
