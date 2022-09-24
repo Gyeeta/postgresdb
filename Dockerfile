@@ -21,7 +21,7 @@ LABEL org.opencontainers.image.authors="https://github.com/gyeeta"
 
 RUN apt-get update && \
 	apt-get install -y --no-install-recommends \
-	ca-certificates \
+	ca-certificates libedit2 \
 	&& rm -rf /var/lib/apt/lists/*
 
 ENV SSL_CERT_DIR=/etc/ssl/certs
