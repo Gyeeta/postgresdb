@@ -109,6 +109,26 @@ db_start_validate()
 	fi
 }
 
+valid_install()
+{
+	if [ ! -f ./cfg/dbdir.cfg ] || [ ! -s ./cfg/dbdir.cfg ]; then 
+		printf "\n\nERROR : Valid DB Data config not found in $PWD/cfg/dbdir.cfg : Please run db_install.sh script first to configure a proper install...\n\n"
+		exit 1
+	fi
+
+	DBDIR=$( cat ./cfg/dbdir.cfg 2> /dev/null )
+
+	if [ ! -d "$DBDIR" ]; then
+		printf "\n\nERROR : Invalid DB Data specified in $PWD/cfg/dbdir.cfg : "$DBDIR" is not a directory : Please run db_install.sh script first to configure a proper install...\n\n"
+		exit 1
+	fi	
+
+	if [ ! -f ${DBDIR}/gy_install.cfg 2> /dev/null ] || [ ! -f ${DBDIR}/postgresql.conf 2> /dev/null ]; then
+		printf "\n\nERROR : DB Data dir in $PWD/cfg/dbdir.cfg : "$DBDIR" not yet initialized : Please run db_install.sh script first to configure a proper install...\n\n"
+		exit 1
+	fi	
+}	
+
 if [ $# -lt 1 ]; then
 	printusage
 	exit 1
@@ -121,11 +141,6 @@ DNAME=`dirname $0 2> /dev/null`
 if [ $? -eq 0 ]; then
 	cd $DNAME
 	CURRDIR=`pwd`
-fi
-
-if [ ! -f ./cfg/dbdir.cfg ]; then 
-	printf "\n\nERROR : DB Data config not found in $PWD/cfg/dbdir.cfg : Please run from a proper install...\n\n"
-	exit 1
 fi
 
 if [ ! -f ./bin/pg_ctl ]; then 
@@ -164,6 +179,8 @@ case "$1" in
 
 	start) 
 
+		valid_install
+
 		db_start_validate
 
 		printf "\n\tStarting Gyeeta Postgres DB components...\n\n"
@@ -177,6 +194,32 @@ case "$1" in
 		gy_pgrep 
 		if [ -z "$GLOB_PGREP_PID" ]; then
 			printf "\n\tERROR : Gyeeta Postgres DB process not running. Please check log for ERRORs if no errors already printed...\n\n"
+			exit 1
+		fi
+
+		if [ -n "$GY_FOREGROUND" ]; then
+			trap 'echo "	Exiting now... Cleaning up..."; ./rundb.sh stop; exit 0' SIGINT SIGQUIT SIGTERM
+
+			sleep 2
+
+			gy_pgrep 
+			if [ -z "$GLOB_PGREP_PID" ]; then
+				printf "\n\tERROR : Gyeeta Postgres DB process not running. Please check log for ERRORs if no errors already printed...\n\n"
+				exit 1
+			fi
+
+			echo -e "\nRunning Postgres DB in foreground as GY_FOREGROUND env set...\n"
+
+			while true; do
+				sleep 10
+
+				gy_pgrep 
+				if [ -z "$GLOB_PGREP_PID" ]; then
+					printf "\n\tERROR : Gyeeta Postgres DB process not running. Please check log for ERRORs if no errors already printed...\n\n"
+					exit 1
+				fi
+			done	
+
 			exit 1
 		fi
 
@@ -241,6 +284,8 @@ case "$1" in
 	restart)
 	
 		shift 
+
+		valid_install
 
 		./rundb.sh stop && sleep 1 && ./rundb.sh start "$@"
 
