@@ -8,6 +8,22 @@ if [ $# -lt 3 ]; then
 	exit 1
 fi	
 
+umask 0006
+
+DNAME=`dirname $0 2> /dev/null`
+
+if [ $? -eq 0 ]; then
+	cd $DNAME
+	CURRDIR=`pwd`
+fi
+
+if [ ! -f ./bin/pg_ctl ]; then 
+	echo -e "\n\nERROR : Required binaries not found in $PWD/bin dir : Please run from a proper install...\n\n"
+	exit 1
+fi
+
+export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
+
 if [ ! -f ./bin/pg_ctl ]; then
 	echo -e "\n\nERROR : Please run this script from a proper install dir where bin/pg_ctl binary exists\n\n"
 	exit 1
