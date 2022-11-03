@@ -51,9 +51,9 @@ print_version()
 
 print_complete_set()
 {
-echo -e "\n\n		Complete Set of Options : \n"
+echo -en "\n\n		Complete Set of Options : \n"
 
-echo -e "	
+echo -en "	
 	ps 	restart 	start		stop 	version 
 
 	For Help on any option : please type 
@@ -68,7 +68,7 @@ echo -e "
 
 printusage()
 {
-echo -e "\n\n ------------------  Usage  -------------------\n"
+echo -en "\n\n ------------------  Usage  -------------------\n"
 print_start
 print_stop
 print_ps
@@ -92,7 +92,7 @@ gy_pgrep()
 	if [ -n "$IS_FOUND" ]; then
 		GLOB_PGREP_PID="$IS_FOUND"
 		if [ $GLOB_PRINT_PID -eq 1 ]; then
-			echo -e "$IS_FOUND"
+			echo -n "$IS_FOUND"
 		fi	
 	fi
 }
@@ -102,8 +102,8 @@ db_start_validate()
 {
 	gy_pgrep
 	if [ -n "$GLOB_PGREP_PID" ]; then
-		echo -e "\nNOTE : Gyeeta Postgres component(s) already running : PID(s) $GLOB_PGREP_PID\n\n"
-		echo -e "Please run \"$0 restart\" if you need to restart the components...\n\n"
+		echo -en "\nNOTE : Gyeeta Postgres component(s) already running : PID(s) $GLOB_PGREP_PID\n\n"
+		echo -en "Please run \"$0 restart\" if you need to restart the components...\n\n"
 
 		exit 1
 	fi
@@ -112,19 +112,19 @@ db_start_validate()
 valid_install()
 {
 	if [ ! -f ./cfg/dbdir.cfg ] || [ ! -s ./cfg/dbdir.cfg ]; then 
-		echo -e "\n\nERROR : Valid DB Data config not found in $PWD/cfg/dbdir.cfg : Please run db_install.sh script first to configure a proper install...\n\n"
+		echo -en "\n\nERROR : Valid DB Data config not found in $PWD/cfg/dbdir.cfg : Please run db_install.sh script first to configure a proper install...\n\n"
 		exit 1
 	fi
 
 	DBDIR=$( cat ./cfg/dbdir.cfg 2> /dev/null )
 
 	if [ ! -d "$DBDIR" ]; then
-		echo -e "\n\nERROR : Invalid DB Data specified in $PWD/cfg/dbdir.cfg : "$DBDIR" is not a directory : Please run db_install.sh script first to configure a proper install...\n\n"
+		echo -en "\n\nERROR : Invalid DB Data specified in $PWD/cfg/dbdir.cfg : "$DBDIR" is not a directory : Please run db_install.sh script first to configure a proper install...\n\n"
 		exit 1
 	fi	
 
 	if [ ! -f ${DBDIR}/gy_install.cfg 2> /dev/null ] || [ ! -f ${DBDIR}/postgresql.conf 2> /dev/null ]; then
-		echo -e "\n\nERROR : DB Data dir in $PWD/cfg/dbdir.cfg : "$DBDIR" not yet initialized : Please run db_install.sh script first to configure a proper install...\n\n"
+		echo -en "\n\nERROR : DB Data dir in $PWD/cfg/dbdir.cfg : "$DBDIR" not yet initialized : Please run db_install.sh script first to configure a proper install...\n\n"
 		exit 1
 	fi	
 }	
@@ -144,7 +144,7 @@ if [ $? -eq 0 ]; then
 fi
 
 if [ ! -f ./bin/pg_ctl ]; then 
-	echo -e "\n\nERROR : Required binaries not found in $PWD/bin dir : Please run from a proper install...\n\n"
+	echo -en "\n\nERROR : Required binaries not found in $PWD/bin dir : Please run from a proper install...\n\n"
 	exit 1
 fi
 
@@ -167,7 +167,7 @@ case "$1" in
 			do	
 				print_"$opt" 2> /dev/null
 				if [ $? -ne 0 ]; then
-					echo -e "\nERROR : Invalid Option $opt...\n\n"
+					echo -en "\nERROR : Invalid Option $opt...\n\n"
 					exit 1
 				fi
 
@@ -183,7 +183,7 @@ case "$1" in
 
 		db_start_validate
 
-		echo -e "\n\tStarting Gyeeta Postgres DB components...\n\n"
+		echo -en "\n\tStarting Gyeeta Postgres DB components...\n\n"
 
 		shift 1
 
@@ -193,7 +193,7 @@ case "$1" in
 
 		gy_pgrep 
 		if [ -z "$GLOB_PGREP_PID" ]; then
-			echo -e "\n\tERROR : Gyeeta Postgres DB process not running. Please check log for ERRORs if no errors already printed...\n\n"
+			echo -en "\n\tERROR : Gyeeta Postgres DB process not running. Please check log for ERRORs if no errors already printed...\n\n"
 			exit 1
 		fi
 
@@ -204,18 +204,18 @@ case "$1" in
 
 			gy_pgrep 
 			if [ -z "$GLOB_PGREP_PID" ]; then
-				echo -e "\n\tERROR : Gyeeta Postgres DB process not running. Please check log for ERRORs if no errors already printed...\n\n"
+				echo -en "\n\tERROR : Gyeeta Postgres DB process not running. Please check log for ERRORs if no errors already printed...\n\n"
 				exit 1
 			fi
 
-			echo -e "\nRunning Postgres DB in foreground as GY_FOREGROUND env set...\n"
+			echo -en "\nRunning Postgres DB in foreground as GY_FOREGROUND env set...\n"
 
 			while true; do
 				sleep 10
 
 				gy_pgrep 
 				if [ -z "$GLOB_PGREP_PID" ]; then
-					echo -e "\n\tERROR : Gyeeta Postgres DB process not running. Please check log for ERRORs if no errors already printed...\n\n"
+					echo -en "\n\tERROR : Gyeeta Postgres DB process not running. Please check log for ERRORs if no errors already printed...\n\n"
 					exit 1
 				fi
 			done	
@@ -230,7 +230,7 @@ case "$1" in
 	
 	stop)
 
-		echo -e "\n\tStopping Gyeeta Postgres DB components : "
+		echo -en "\n\tStopping Gyeeta Postgres DB components : "
 
 		gy_pgrep 
 		[ -n "$GLOB_PGREP_PID" ] && ./bin/pg_ctl -D $( cat ./cfg/dbdir.cfg ) stop 2> /dev/null
@@ -241,12 +241,12 @@ case "$1" in
 			gy_pgrep 
 			
 			if [ -n "$GLOB_PGREP_PID" ]; then
-				echo -e "\n\t[ERROR]: Gyeeta Postgres process $GLOB_PGREP_PID not yet exited. Sending SIGKILL...\n\n"
+				echo -en "\n\t[ERROR]: Gyeeta Postgres process $GLOB_PGREP_PID not yet exited. Sending SIGKILL...\n\n"
 				kill -KILL $GLOB_PGREP_PID
 			fi	
 		fi	
 
-		echo -e "\n\n\tStopped all components successfully...\n\n"
+		echo -en "\n\n\tStopped all components successfully...\n\n"
 
 		exit 0
 
@@ -254,17 +254,17 @@ case "$1" in
 
 	ps)
 
-		echo -e "\n\tPID status of Gyeeta Postgres DB package components : "
+		echo -en "\n\tPID status of Gyeeta Postgres DB package components : "
 
 		GLOB_PRINT_PID=1
 
-		echo -e "\n\n\tGyeeta Postgres PID(s) : "
+		echo -en "\n\n\tGyeeta Postgres PID(s) : "
 		gy_pgrep 
 		
 		if [ -n "$GLOB_PGREP_PID" ]; then
-			echo -e "\n\n\n\tAll Components Running : Yes\n\n"
+			echo -en "\n\n\n\tAll Components Running : Yes\n\n"
 		else
-			echo -e "\n\n\n\tAll Components Running : No\n\n"
+			echo -en "\n\n\n\tAll Components Running : No\n\n"
 		fi	
 
 		exit 0
